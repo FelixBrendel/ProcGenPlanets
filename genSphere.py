@@ -20,7 +20,7 @@ def generateIcoSphere():
         (-0.27639, -0.85064, -0.44721),
         (  0.7236, -0.52572, -0.44721),
 
-        (0,0,-1),
+        (0,0,-1)
     ]
 
     faces = (
@@ -78,26 +78,21 @@ def subdivide(verts, faces, iteration):
     def expandVecToLen(vec, desiredLength):
         vecLen_now = vecLen(vec)
         return (
-            vec[0]*desiredLength/vecLen_now,
-            vec[1]*desiredLength/vecLen_now,
-            vec[2]*desiredLength/vecLen_now
+            vec[0] * desiredLength / vecLen_now,
+            vec[1] * desiredLength / vecLen_now,
+            vec[2] * desiredLength / vecLen_now
         )
 
     def getCenterPoint(p1, p2):
         vecLen_p1 = vecLen(verts[p1])
         vecLen_p2 = vecLen(verts[p2])
         vecLen_new = (vecLen_p1 + vecLen_p2)*.5
-        heightDelta = random.gauss(0,.05*(.5**iteration))
-        # heightDelta = 0
-        # if heightDelta < 0:
-        #     heightDelta = -(heightDelta**iteration)
-        # else:
-        #     heightDelta = heightDelta**iteration
+        heightDelta = random.gauss(0,.03*(.6**iteration))
 
         return expandVecToLen ((
-            (verts[p1][0]+ verts[p2][0])*.5,
-            (verts[p1][1]+ verts[p2][1])*.5,
-            (verts[p1][2]+ verts[p2][2])*.5
+            (verts[p1][0] + verts[p2][0]) * .5,
+            (verts[p1][1] + verts[p2][1]) * .5,
+            (verts[p1][2] + verts[p2][2]) * .5
         ), vecLen_new + heightDelta)
 
     def divideEdge(edge):
@@ -150,7 +145,7 @@ def subdivide(verts, faces, iteration):
 
 
 verts, faces = generateIcoSphere()
-for i in range(9):
+for i in range(8):
     verts, faces = subdivide(verts, faces, i+1)
 
 
