@@ -1,4 +1,5 @@
 import bpy
+import random
 
 print("- - "*20)
 
@@ -67,28 +68,51 @@ def createMeshFromData(name, origin, verts, faces):
     me.update()
 
 
-def subdivide(verts, faces):
+def subdivide(verts, faces, iteration):
     newFaces = []
     dividedEdges = {}
 
-    def normalize(point):
-        vecLen = sum([c**2 for c in point])**.5
-        return tuple(c/vecLen for c in point)
+    def vecLen(vec):
+        return sum([c**2 for c in vec])**.5
+
+    def expandVecToLen(vec, desiredLength):
+        vecLen_now = vecLen(vec)
+        return (
+            vec[0]*desiredLength/vecLen_now,
+            vec[1]*desiredLength/vecLen_now,
+            vec[2]*desiredLength/vecLen_now
+        )
 
     def getCenterPoint(p1, p2):
-        return normalize ((
-            (verts[p1][0]+verts[p2][0])*.5,
-            (verts[p1][1]+verts[p2][1])*.5,
-            (verts[p1][2]+verts[p2][2])*.5
-        ))
+        vecLen_p1 = vecLen(verts[p1])
+        vecLen_p2 = vecLen(verts[p2])
+        vecLen_new = (vecLen_p1 + vecLen_p2)*.5
+        heightDelta = random.gauss(0,.05*(.5**iteration))
+        # heightDelta = 0
+        # if heightDelta < 0:
+        #     heightDelta = -(heightDelta**iteration)
+        # else:
+        #     heightDelta = heightDelta**iteration
+
+        return expandVecToLen ((
+            (verts[p1][0]+ verts[p2][0])*.5,
+            (verts[p1][1]+ verts[p2][1])*.5,
+            (verts[p1][2]+ verts[p2][2])*.5
+        ), vecLen_new + heightDelta)
 
     def divideEdge(edge):
         try:
-            return dividedEdges[edge]
+            normalizedEdge = list(edge)
+            normalizedEdge.sort()
+            normalizedEdge = tuple(normalizedEdge)
+            return dividedEdges[tuple(normalizedEdge)]
         except Exception as e:
             newVert  = getCenterPoint(*edge)
             newIndex = len(verts)
-            dividedEdges[edge] = newIndex
+            normalizedEdge = list(edge)
+            normalizedEdge.sort()
+            normalizedEdge = tuple(normalizedEdge)
+            dividedEdges[normalizedEdge] = newIndex
             verts.append(newVert)
             return newIndex
 
@@ -97,32 +121,28 @@ def subdivide(verts, faces):
         edge2 = (face[1], face[2])
         edge3 = (face[2], face[0])
 
-        divideEdge(edge1)
-        divideEdge(edge2)
-        divideEdge(edge3)
-
         newFaces.append((
             face[0],
-            dividedEdges[edge1],
-            dividedEdges[edge3]
+            divideEdge(edge1),
+            divideEdge(edge3)
         ))
 
         newFaces.append((
             face[1],
-            dividedEdges[edge2],
-            dividedEdges[edge1]
+            divideEdge(edge2),
+            divideEdge(edge1)
         ))
 
         newFaces.append((
             face[2],
-            dividedEdges[edge3],
-            dividedEdges[edge2]
+            divideEdge(edge3),
+            divideEdge(edge2)
         ))
 
         newFaces.append((
-            dividedEdges[edge1],
-            dividedEdges[edge2],
-            dividedEdges[edge3]
+            divideEdge(edge1),
+            divideEdge(edge2),
+            divideEdge(edge3)
         ))
 
 
@@ -130,10 +150,8 @@ def subdivide(verts, faces):
 
 
 verts, faces = generateIcoSphere()
-verts, faces = subdivide(verts, faces)
-verts, faces = subdivide(verts, faces)
-verts, faces = subdivide(verts, faces)
-verts, faces = subdivide(verts, faces)
-verts, faces = subdivide(verts, faces)
+for i in range(9):
+    verts, faces = subdivide(verts, faces, i+1)
 
-createMeshFromData('Icosphere', (0,0,0), verts, faces)
+
+createMeshFromData('ProcGenSphere', (0,0,0), verts, faces)
