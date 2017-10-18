@@ -147,7 +147,7 @@ def subdivide(verts, faces, iteration):
 
 
 verts, faces = generateIcoSphere()
-for i in range(8):
+for i in range(5):
     verts, faces = subdivide(verts, faces, i+1)
 
 
