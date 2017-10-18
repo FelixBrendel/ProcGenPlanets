@@ -55,15 +55,17 @@ def createMeshFromData(name, origin, verts, faces):
     me = bpy.data.meshes.new(name+'Mesh')
     ob = bpy.data.objects.new(name, me)
     ob.location = origin
+    ob.scale = (8,8,8)
 
     # Link object to scene and make active
     scn = bpy.context.scene
     scn.objects.link(ob)
     scn.objects.active = ob
-    ob.select = True
+    ob.select = False
 
     # Create mesh from given verts, faces.
     me.from_pydata(verts, [], faces)
+
     # Update mesh with new data
     me.update()
 
@@ -75,7 +77,7 @@ def subdivide(verts, faces, iteration):
     def vecLen(vec):
         return sum([c**2 for c in vec])**.5
 
-    def expandVecToLen(vec, desiredLength):
+    def scaleVecToLen(vec, desiredLength):
         vecLen_now = vecLen(vec)
         return (
             vec[0] * desiredLength / vecLen_now,
@@ -87,9 +89,9 @@ def subdivide(verts, faces, iteration):
         vecLen_p1 = vecLen(verts[p1])
         vecLen_p2 = vecLen(verts[p2])
         vecLen_new = (vecLen_p1 + vecLen_p2)*.5
-        heightDelta = random.gauss(0,.03*(.6**iteration))
+        heightDelta = random.gauss(0,.01*(.6**iteration))
 
-        return expandVecToLen ((
+        return scaleVecToLen ((
             (verts[p1][0] + verts[p2][0]) * .5,
             (verts[p1][1] + verts[p2][1]) * .5,
             (verts[p1][2] + verts[p2][2]) * .5
