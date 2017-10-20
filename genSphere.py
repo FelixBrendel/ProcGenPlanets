@@ -2,6 +2,7 @@ import bpy
 import random
 
 print("- - "*20)
+random.seed(27051996)
 
 def generateIcoSphere():
 
@@ -50,18 +51,18 @@ def generateIcoSphere():
     )
     return (verts, faces)
 
-def createMeshFromData(name, origin, verts, faces):
+def createMeshFromData(name, origin, scale, verts, faces):
     # Create mesh and object
     me = bpy.data.meshes.new(name+'Mesh')
     ob = bpy.data.objects.new(name, me)
     ob.location = origin
-    ob.scale = (8,8,8)
+    ob.scale = scale
 
     # Link object to scene and make active
     scn = bpy.context.scene
     scn.objects.link(ob)
     scn.objects.active = ob
-    ob.select = False
+    # ob.select = False
 
     # Create mesh from given verts, faces.
     me.from_pydata(verts, [], faces)
@@ -147,8 +148,8 @@ def subdivide(verts, faces, iteration):
 
 
 verts, faces = generateIcoSphere()
-for i in range(5):
+for i in range(10):
     verts, faces = subdivide(verts, faces, i+1)
 
 
-createMeshFromData('ProcGenSphere', (0,0,0), verts, faces)
+createMeshFromData('ProcGenSphere', (0,0,0), (8,8,8), verts, faces)
