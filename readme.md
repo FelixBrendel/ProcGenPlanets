@@ -1,5 +1,6 @@
 # Procedurally generate planets
 
+![planet](screenshots/planet.png)
 
 The curent version works with a modiefied midpoint-displacement method on a sphere.
 It can generate different levels of detail on demand.

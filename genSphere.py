@@ -86,10 +86,14 @@ def subdivide(verts, faces, iteration):
             vec[2] * desiredLength / vecLen_now
         )
 
-    def getCenterPoint(p1, p2):
+    def getCenterPoint(p1, p2, q1):
         vecLen_p1 = vecLen(verts[p1])
         vecLen_p2 = vecLen(verts[p2])
-        vecLen_new = (vecLen_p1 + vecLen_p2)*.5
+
+        vecLen_q1 = vecLen(verts[q1])
+
+        vecLen_new = (vecLen_p1 + vecLen_p2) + (3**.5)*vecLen_q1
+        vecLen_new /= 2 + (3**.5)
         heightDelta = random.gauss(0,.01*(.6**iteration))
 
         return scaleVecToLen ((
@@ -98,14 +102,14 @@ def subdivide(verts, faces, iteration):
             (verts[p1][2] + verts[p2][2]) * .5
         ), vecLen_new + heightDelta)
 
-    def divideEdge(edge):
+    def divideEdge(edge, q1):
         try:
             normalizedEdge = list(edge)
             normalizedEdge.sort()
             normalizedEdge = tuple(normalizedEdge)
             return dividedEdges[tuple(normalizedEdge)]
         except Exception as e:
-            newVert  = getCenterPoint(*edge)
+            newVert  = getCenterPoint(*edge, q1)
             newIndex = len(verts)
             normalizedEdge = list(edge)
             normalizedEdge.sort()
@@ -121,26 +125,26 @@ def subdivide(verts, faces, iteration):
 
         newFaces.append((
             face[0],
-            divideEdge(edge1),
-            divideEdge(edge3)
+            divideEdge(edge1, face[2]),
+            divideEdge(edge3, face[1])
         ))
 
         newFaces.append((
             face[1],
-            divideEdge(edge2),
-            divideEdge(edge1)
+            divideEdge(edge2, face[0]),
+            divideEdge(edge1, face[2])
         ))
 
         newFaces.append((
             face[2],
-            divideEdge(edge3),
-            divideEdge(edge2)
+            divideEdge(edge3, face[1]),
+            divideEdge(edge2, face[0])
         ))
 
         newFaces.append((
-            divideEdge(edge1),
-            divideEdge(edge2),
-            divideEdge(edge3)
+            divideEdge(edge1, face[2]),
+            divideEdge(edge2, face[0]),
+            divideEdge(edge3, face[1])
         ))
 
 
@@ -148,7 +152,7 @@ def subdivide(verts, faces, iteration):
 
 
 verts, faces = generateIcoSphere()
-for i in range(10):
+for i in range(6):
     verts, faces = subdivide(verts, faces, i+1)
 
 
